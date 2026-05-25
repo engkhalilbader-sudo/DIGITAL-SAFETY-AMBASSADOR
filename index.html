@@ -283,8 +283,7 @@
 
         .data-item strong { color: var(--uae-green); }
 
-        .
-cert-sigs {
+        .cert-sigs {
             display: flex;
             justify-content: space-between;
             margin-top: 30px;
@@ -445,8 +444,7 @@ cert-sigs {
         }
 
         document.getElementById('lblCustomerName').innerText = name;
-        document.getElementById('lblSchoolName').
-innerText = school;
+        document.getElementById('lblSchoolName').innerText = school;
         document.getElementById('lblEmirate').innerText = emirate;
         document.getElementById('lblDate').innerText = formattedDate;
     }
@@ -458,7 +456,7 @@ innerText = school;
         
         const options = {
             margin:       0,
-            filename:     ميثاق_${studentName}.pdf,
+            filename:     `ميثاق_${studentName}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
