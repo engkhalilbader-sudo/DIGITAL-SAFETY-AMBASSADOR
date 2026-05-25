@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة ميثاق سفير السلامة الرقمية - دولة الإمارات</title>
+    <!-- استدعاء الخطوط والمكتبات الخارجية لتوليد الـ PDF -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        :root {
+            --uae-green: #00732f;
+            --uae-dark-green: #005221;
+            --uae-gold: #c5a059;
+            --uae-bg: #f7f9f6;
+            --text-dark: #2b3a32;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #eef2f0;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        /* حاوية النظام الرئيسي */
+        .app-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--uae-green) 0%, var(--uae-dark-green) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            border-bottom: 4px solid var(--uae-gold);
+        }
+
+        .app-header h1 { margin: 0; font-size: 24px; font-weight: 800; }
+        .app-header p { margin: 10px 0 0 0; font-size: 14px; color: #e2f0e7; }
+
+        /* شريط العلم الإماراتي */
+        .flag-ribbon {
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 6px;
+            background: linear-gradient(to left, #ff0000 25%, #00732f 25%, #00732f 50%, #ffffff 50%, #ffffff 75%, #000000 75%);
+        }
+
+        .form-section {
+            padding: 30px;
+            background: #fcfdfe;
+            border-bottom: 1px solid #eef2f0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--uae-green);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-inputs { grid-template-columns: 1fr; }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .input-group input, .input-group select {
+            padding: 12px;
+            border: 1px solid #ccd7d0;
+            border-radius: 6px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--uae-green);
+            box-shadow: 0 0 0 3px rgba(0, 115, 47, 0.1);
+        }
+
+        .action-area {
+            padding: 30px;
+            text-align: center;
+            background: #f4f7f5;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #c5a059 0%, #b38f46 100%);
+            color: white;
+            border: none;
+            padding: 16px 35px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
+            transition: 0.3s;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(197, 160, 89, 0.4);
+        }
+
+        /* ---------------------------------------------------
+           قالب الوثيقة الرسمي الذي سيتم تحويله إلى PDF
+----------------------------------------------------- */
+        .preview-stage {
+            padding: 40px 20px;
+            background: #555;
+            display: flex;
+            justify-content: center;
+        }
+
+        #cert-template {
+            width: 210mm;
+            min-height: 297mm;
+            background-color: var(--uae-bg);
+            padding: 20mm 15mm;
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cert-header-banner {
+            background: linear-gradient(135deg, var(--uae-green) 0%, var(--uae-dark-green) 100%);
+            margin: -20mm -15mm 25px -15mm;
+            padding: 35px 25mm;
+            color: white;
+            position: relative;
+            border-bottom: 5px solid var(--uae-gold);
+        }
+
+        .cert-header-grid {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cert-title { font-size: 24pt; font-weight: 800; margin: 0; }
+        .cert-subtitle { font-size: 12pt; color: #e2f0e7; margin: 5px 0 0 0; }
+        
+        .cert-badge {
+            border: 1px solid rgba(197, 160, 89, 0.5);
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 6px;
+            color: var(--uae-gold);
+            font-weight: 700;
+            font-size: 10pt;
+            text-align: center;
+        }
+
+        .cert-intro {
+            background: white;
+            border-right: 5px solid var(--uae-green);
+            padding: 18px;
+            margin-bottom: 25px;
+            border-radius: 0 6px 6px 0;
+            text-align: justify;
+            font-size: 11pt;
+            line-height: 1.7;
+        }
+
+        .cert-section-title {
+            font-size: 13pt;
+            font-weight: 700;
+            color: var(--uae-green);
+            border-right: 4px solid var(--uae-gold);
+            padding-right: 10px;
+            margin: 20px 0 15px 0;
+        }
+
+        /* بنود الميثاق داخل الـ PDF */
+        .cert-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .cert-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e1e8e3;
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .card-num {
+            width: 26px;
+            height: 26px;
+            background: #e6f3eb;
+            color: var(--uae-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 10pt;
+        }
+
+        .card-title {
+            font-size: 11pt;
+            font-weight: 700;
+            color: var(--uae-green);
+        }
+
+        .card-text {
+            font-size: 9.5pt;
+            color: #4a5d50;
+            margin: 0;
+            text-align: justify;
+        }
+
+        /* صندوق الاعتماد الديناميكي */
+        .cert-lockbox {
+            background: linear-gradient(135deg, #ffffff 0%, #f4f7f5 100%);
+            border: 1px dashed var(--uae-gold);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: auto;
+        }
+
+        .lockbox-title {
+            text-align: center;
+            font-size: 13pt;
+            font-weight: 700;
+            color: var(--uae-green);
+            margin-bottom: 15px;
+        }
+
+        .display-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.6);
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .data-item {
+            font-size: 10.5pt;
+            color: var(--text-dark);
+        }
+
+        .data-item strong { color: var(--uae-green); }
+
+        .
+cert-sigs {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .sig-col { width: 40%; }
+        .sig-line { border-top: 1px solid var(--uae-gold); margin-bottom: 5px; margin-top: 35px;}
+        .sig-text { font-size: 9.5pt; color: #5c7063; }
+
+        .cert-footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 8.5pt;
+            color: #99af9f;
+            border-top: 1px solid #e1e8e3;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="app-header">
+        <div class="flag-ribbon"></div>
+        <h1>بوابة سفير السلامة الرقمية الإلكترونية</h1>
+        <p>قم بتعبئة بياناتك الرسمية بالأسفل للانضمام للميثاق الوطني وتوليد وثيقتك الفورية</p>
+    </div>
+
+    <!-- قسم إدخال البيانات -->
+    <div class="form-section">
+        <div class="section-title">✍️ تعبئة بيانات السفير الرقمي:</div>
+        <div class="grid-inputs">
+            <div class="input-group">
+                <label>اسم السفير الثلاثي:</label>
+                <input type="text" id="studentName" placeholder="مثال: أحمد سلطان الشامسي" oninput="updateCertificate()">
+            </div>
+            <div class="input-group">
+                <label>المدرسة / المؤسسة:</label>
+                <input type="text" id="schoolName" placeholder="مثال: مدرسة الجرف للحلقة الثانية" oninput="updateCertificate()">
+            </div>
+            <div class="input-group">
+                <label>الإمارة / النطاق:</label>
+                <select id="emirateName" onchange="updateCertificate()">
+                    <option value="أبوظبي">أبوظبي</option>
+                    <option value="دبي">دبي</option>
+                    <option value="الشارقة">الشارقة</option>
+                    <option value="عجمان" selected>عجمان</option>
+                    <option value="أم القيوين">أم القيوين</option>
+                    <option value="رأس الخيمة">رأس الخيمة</option>
+                    <option value="الفجيرة">الفجيرة</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>تاريخ الانضمام للميثاق:</label>
+                <input type="date" id="joinDate" onchange="updateCertificate()">
+            </div>
+        </div>
+    </div>
+
+    <!-- زر توليد الشهادة وطباعتها -->
+    <div class="action-area">
+        <button class="btn-generate" onclick="downloadPDF()">📜 اعتماد الميثاق وتنزيل الوثيقة الرسمية (PDF)</button>
+    </div>
+
+    <!-- منطقة المعاينة الحية للشهادة قبل الطباعة -->
+    <div class="preview-stage">
+        <div id="cert-template">
+            <div class="flag-ribbon"></div>
+            
+            <div class="cert-header-banner">
+                <div class="cert-header-grid">
+                    <div>
+                        <h2 class="cert-title">ميثاق سفير السلامة الرقمية</h2>
+                        <p class="cert-subtitle">البرنامج الوطني لجودة الحياة الرقمية • دولة الإمارات العربية المتحدة</p>
+                    </div>
+                    <div class="cert-badge">رؤية الإمارات<br>2031</div>
+                </div>
+            </div>
+
+            <div class="cert-intro">
+                انطلاقاً من رؤية دولة الإمارات العربية المتحدة في تعزيز جودة الحياة الرقمية، وبناء مجتمع معرفي آمن ومستدام؛ يمثل هذا الميثاق عهداً والتزاماً أخلاقياً ووطنياً يتبناه "سفير السلامة الرقمية" ليكون قدوة في بيئته ومجتمعه، ناشراً للوعي الرقمي الإيجابي ومساهماً في حماية الأجيال الناشئة من مخاطر الفضاء السيبراني.
+            </div>
+
+            <div class="cert-section-title">بنود ميثاق السفير والالتزام الوطني</div>
+            
+            <div class="cert-grid">
+                <div class="cert-card">
+                    <div class="card-head"><div class="card-num">١</div><div class="card-title">صون الهوية الرقمية</div></div>
+                    <p class="cert-text">ألتزم بنشر قيم التسامح والتعايش التي تميز مجتمع دولة الإمارات، والابتعاد عن خطاب الكراهية، والتنمر، أو الإساءة للآخرين في الفضاء الرقمي.</p>
+                </div>
+<div class="cert-card">
+                    <div class="card-head"><div class="card-num">٢</div><div class="card-title">حماية البيانات والخصوصية</div></div>
+                    <p class="cert-text">أتعهد بالمحافظة على خصوصية بياناتي الشخصية وبيانات الآخرين، وعدم مشاركة أي معلومات حساسة أو صور قد تستغل في الابتزاز أو الاختراق.</p>
+                </div>
+                <div class="cert-card">
+                    <div class="card-head"><div class="card-num">٣</div><div class="card-title">مكافحة التزييف والشائعات</div></div>
+                    <p class="cert-text">ألتزم بالتحقق من مصداقية الأخبار والمعلومات من مصادرها الرسمية في الدولة قبل إعادة نشرها، والسعي الدائم للحد من انتشار الإشاعات المضللة.</p>
+                </div>
+                <div class="cert-card">
+                    <div class="card-head"><div class="card-num">٤</div><div class="card-title">التوازن الرقمي الصحي</div></div>
+                    <p class="cert-text">أحرص على تنظيم الوقت المقضي أمام الشاشات لضمان التوازن بين الحياة الرقمية والحياة الواقعية، وتشجيع زملائي على ممارسة الأنشطة البدنية.</p>
+                </div>
+            </div>
+
+            <!-- معلومات السفير الديناميكية المحدثة بواسطة الـ JavaScript -->
+            <div class="cert-lockbox">
+                <div class="lockbox-title">وثيقة إقرار الالتزام والاعتماد الرسمي</div>
+                <div class="display-table">
+                    <div class="data-item"><strong>اسم السفير:</strong> <span id="lblCustomerName">أحمد سلطان الشامسي</span></div>
+                    <div class="data-item"><strong>المدرسة / الجهة:</strong> <span id="lblSchoolName">مدرسة الجرف للحلقة الثانية</span></div>
+                    <div class="data-item"><strong>النطاق / الإمارة:</strong> <span id="lblEmirate">عجمان</span></div>
+                    <div class="data-item"><strong>تاريخ الانضمام:</strong> <span id="lblDate">25 / 05 / 2026</span></div>
+                </div>
+                <p style="font-size: 9.5pt; text-align: center; margin: 10px 0; font-weight: 500; color: #3a4d40;">
+                    "أقر أنا الموقع أدناه بأنني اطلعت على بنود ميثاق سفير السلامة الرقمية وأتعهد بالالتزام بها والعمل بموجبها بوعي ومسؤولية كاملة."
+                </p>
+                
+                <div class="cert-sigs">
+                    <div class="sig-col">
+                        <div class="sig-line"></div>
+                        <div class="sig-text">توقيع سفير السلامة الرقمية</div>
+                    </div>
+                    <div class="sig-col">
+                        <div class="sig-line"></div>
+                        <div class="sig-text">اعتماد منسق البرنامج الوطني</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cert-footer">
+                <p>معاً نحو فضاء رقمي آمن ومزدهر مستلهم من قيم العطاء والريادة الإماراتية</p>
+                <strong style="color: var(--uae-green); letter-spacing: 1px;">DIGITAL SAFETY AMBASSADOR • UAE</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // تعيين تاريخ اليوم كقيمة افتراضية في خانة التاريخ
+    window.onload = function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('joinDate').value = today;
+        updateCertificate();
+    }
+
+    // دالة لتحديث البيانات داخل الشهادة فوراً أثناء الكتابة
+    function updateCertificate() {
+        const name = document.getElementById('studentName').value || "........................................";
+        const school = document.getElementById('schoolName').value || "........................................";
+        const emirate = document.getElementById('emirateName').value;
+        const dateInput = document.getElementById('joinDate').value;
+        
+        let formattedDate = "....................";
+        if(dateInput) {
+            const d = new Date(dateInput);
+            formattedDate = d.getDate() + ' / ' + (d.getMonth()+1) + ' / ' + d.getFullYear();
+        }
+
+        document.getElementById('lblCustomerName').innerText = name;
+        document.getElementById('lblSchoolName').
+innerText = school;
+        document.getElementById('lblEmirate').innerText = emirate;
+        document.getElementById('lblDate').innerText = formattedDate;
+    }
+
+    // دالة توليد وتحميل وثيقة الـ PDF بجودة عالية ومقاسات منضبطة A4
+    function downloadPDF() {
+        const element = document.getElementById('cert-template');
+        const studentName = document.getElementById('studentName').value || "سفير_السلامة_الرقمية";
+        
+        const options = {
+            margin:       0,
+            filename:     ميثاق_${studentName}.pdf,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(options).from(element).save();
+    }
+</script>
+
+</body>
+</html>
