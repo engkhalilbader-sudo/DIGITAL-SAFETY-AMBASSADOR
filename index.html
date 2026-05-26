@@ -6,7 +6,8 @@
     <title>منصة ميثاق سفير السلامة الرقمية - دولة الإمارات</title>
     <!-- استدعاء الخطوط والمكتبات الخارجية لتوليد الـ PDF -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         :root {
@@ -242,7 +243,7 @@
             color: var(--uae-green);
         }
 
-        .card-text {
+        .cert-text {
             font-size: 9.5pt;
             color: #4a5d50;
             margin: 0;
@@ -286,12 +287,19 @@
         .cert-sigs {
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
+            margin-top: 12px;
             text-align: center;
         }
 
-        .sig-col { width: 40%; }
-        .sig-line { border-top: 1px solid var(--uae-gold); margin-bottom: 5px; margin-top: 35px;}
+        .sig-col {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+        }
+        .sig-spacer { flex: 1; min-height: 18px; }
+        .sig-name { font-size: 10.5pt; font-weight: 700; color: var(--text-dark); margin: 0 0 2px 0; }
+        .sig-date { font-size: 9pt; color: #5c7063; margin: 0 0 6px 0; }
+        .sig-line { border-top: 1px solid var(--uae-gold); margin-bottom: 5px; margin-top: 0; }
         .sig-text { font-size: 9.5pt; color: #5c7063; }
 
         .cert-footer {
@@ -404,10 +412,16 @@
                 
                 <div class="cert-sigs">
                     <div class="sig-col">
+                        <div class="sig-spacer"></div>
+                        <div class="sig-name" id="lblSigName">أحمد سلطان الشامسي</div>
+                        <div class="sig-date" id="lblSigDate">25 / 05 / 2026</div>
                         <div class="sig-line"></div>
                         <div class="sig-text">توقيع سفير السلامة الرقمية</div>
                     </div>
                     <div class="sig-col">
+                        <div class="sig-spacer"></div>
+                        <div class="sig-name">ابتسام يوسف</div>
+                        <div class="sig-date" id="lblSigDateCoord">25 / 05 / 2026</div>
                         <div class="sig-line"></div>
                         <div class="sig-text">اعتماد منسق البرنامج الوطني</div>
                     </div>
@@ -432,37 +446,57 @@
 
     // دالة لتحديث البيانات داخل الشهادة فوراً أثناء الكتابة
     function updateCertificate() {
-        const name = document.getElementById('studentName').value || "........................................";
-        const school = document.getElementById('schoolName').value || "........................................";
-        const emirate = document.getElementById('emirateName').value;
-        const dateInput = document.getElementById('joinDate').value;
-        
-        let formattedDate = "....................";
-        if(dateInput) {
-            const d = new Date(dateInput);
-            formattedDate = d.getDate() + ' / ' + (d.getMonth()+1) + ' / ' + d.getFullYear();
+        var name        = document.getElementById('studentName').value.trim();
+        var school      = document.getElementById('schoolName').value.trim();
+        var emirate     = document.getElementById('emirateName').value;
+        var dateInput   = document.getElementById('joinDate').value;
+
+        var displayName = name   || "........................................";
+        var displaySch  = school || "........................................";
+
+        var formattedDate = "....................";
+        if (dateInput) {
+            var d = new Date(dateInput + 'T00:00:00');
+            formattedDate = d.getDate() + ' / ' + (d.getMonth() + 1) + ' / ' + d.getFullYear();
         }
 
-        document.getElementById('lblCustomerName').innerText = name;
-        document.getElementById('lblSchoolName').innerText = school;
-        document.getElementById('lblEmirate').innerText = emirate;
-        document.getElementById('lblDate').innerText = formattedDate;
+        document.getElementById('lblCustomerName').innerText  = displayName;
+        document.getElementById('lblSchoolName').innerText    = displaySch;
+        document.getElementById('lblEmirate').innerText       = emirate;
+        document.getElementById('lblDate').innerText          = formattedDate;
+        document.getElementById('lblSigName').innerText       = displayName;
+        document.getElementById('lblSigDate').innerText       = formattedDate;
+        document.getElementById('lblSigDateCoord').innerText  = formattedDate;
     }
 
-    // دالة توليد وتحميل وثيقة الـ PDF بجودة عالية ومقاسات منضبطة A4
+    // دالة توليد وتحميل وثيقة الـ PDF
     function downloadPDF() {
-        const element = document.getElementById('cert-template');
-        const studentName = document.getElementById('studentName').value || "سفير_السلامة_الرقمية";
-        
-        const options = {
-            margin:       0,
-            filename:     `ميثاق_${studentName}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+        const element  = document.getElementById('cert-template');
+        const student  = document.getElementById('studentName').value || "سفير_السلامة_الرقمية";
 
-        html2pdf().set(options).from(element).save();
+        html2canvas(element, {
+            scale: 3,
+            useCORS: true,
+            allowTaint: true,
+            foreignObjectRendering: false,
+            logging: false,
+            width:  element.offsetWidth,
+            height: element.offsetHeight,
+            x: 0,
+            y: 0,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth:  element.offsetWidth,
+            windowHeight: element.offsetHeight
+        }).then(function(canvas) {
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            const { jsPDF } = window.jspdf;
+            const pdf  = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+            const pw   = pdf.internal.pageSize.getWidth();
+            const ph   = pdf.internal.pageSize.getHeight();
+            pdf.addImage(imgData, 'JPEG', 0, 0, pw, ph);
+            pdf.save('ميثاق_' + student + '.pdf');
+        });
     }
 </script>
 
